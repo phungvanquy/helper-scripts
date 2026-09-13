@@ -5,8 +5,8 @@ Reusable server scripts. Deployment guides live in
 
 | Script | Purpose | Installed command in the examples |
 | --- | --- | --- |
-| [UDP manager](relays/port-forwarding/udp-manager.sh) | UDP port forwarding for WireGuard, AmneziaWG, and other UDP services | `vpn-relay-udp` |
-| [TCP/UDP manager](relays/port-forwarding/tcp-udp-manager.sh) | Applies every mapping to both TCP and UDP | `vpn-relay-tcp-udp` |
+| [UDP manager](relays/port-forwarding/udp-manager.sh) | UDP port forwarding for WireGuard, AmneziaWG, and other UDP services | `relay-udp-manager` |
+| [TCP/UDP manager](relays/port-forwarding/tcp-udp-manager.sh) | Applies every mapping to both TCP and UDP | `relay-tcp-udp-manager` |
 | [IPIP manager](ipip_tunnels_manager.sh) | IPIP tunnels with systemd persistence | `ipip-manager` |
 
 ## Quick relay setup
@@ -37,8 +37,8 @@ using the commands below.
 
 ```bash
 curl -fL https://raw.githubusercontent.com/phungvanquy/helper-scripts/main/relays/port-forwarding/udp-manager.sh -o udp-manager.sh &&
-sudo install -m 0755 udp-manager.sh /usr/local/sbin/vpn-relay-udp &&
-sudo /usr/local/sbin/vpn-relay-udp import ./port.conf
+sudo install -m 0755 udp-manager.sh /usr/local/sbin/relay-udp-manager &&
+sudo /usr/local/sbin/relay-udp-manager import ./port.conf
 ```
 
 ### Both TCP and UDP
@@ -47,8 +47,8 @@ This manager creates rules for both protocols for every mapping.
 
 ```bash
 curl -fL https://raw.githubusercontent.com/phungvanquy/helper-scripts/main/relays/port-forwarding/tcp-udp-manager.sh -o tcp-udp-manager.sh &&
-sudo install -m 0755 tcp-udp-manager.sh /usr/local/sbin/vpn-relay-tcp-udp &&
-sudo /usr/local/sbin/vpn-relay-tcp-udp import ./tcp-udp.conf
+sudo install -m 0755 tcp-udp-manager.sh /usr/local/sbin/relay-tcp-udp-manager &&
+sudo /usr/local/sbin/relay-tcp-udp-manager import ./tcp-udp.conf
 ```
 
 The commands above download the current `main` version. The
@@ -64,13 +64,13 @@ VPN clients with the relay's public address and relay port.
 Export a backup, edit your configuration, and import it again:
 
 ```bash
-sudo /usr/local/sbin/vpn-relay-udp export /root/wg-forwards-backup.conf
+sudo /usr/local/sbin/relay-udp-manager export /root/wg-forwards-backup.conf
 nano ./port.conf
-sudo /usr/local/sbin/vpn-relay-udp import ./port.conf
-sudo /usr/local/sbin/vpn-relay-udp list
+sudo /usr/local/sbin/relay-udp-manager import ./port.conf
+sudo /usr/local/sbin/relay-udp-manager list
 ```
 
-For both protocols, substitute `/usr/local/sbin/vpn-relay-tcp-udp` and your
+For both protocols, substitute `/usr/local/sbin/relay-tcp-udp-manager` and your
 `tcp-udp.conf` file. Remove a line and import again to remove a mapping. UDP state lives
 in `/etc/wg-forward/forwards.conf`; TCP/UDP state lives in
 `/etc/port-forward/forwards.conf`. Installing the script does not replace these
