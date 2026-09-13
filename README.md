@@ -16,16 +16,29 @@ host with iptables support. The forwarding managers install persistence tooling
 through a supported package manager if needed and enable IPv4 forwarding. This
 initialization runs even for `help` and `list`.
 
-Replace `198.51.100.20` with your origin's address and adjust the ports before
-running. For a tunnel, use the origin's tunnel address. The arguments after `add`
-are `NAME RELAY_PORT ORIGIN_IP ORIGIN_PORT`.
+First prepare `port.conf` for UDP or `tcp-udp.conf` for TCP/UDP in your current
+working directory, with one mapping per line:
+
+```text
+# Format: NAME|RELAY_PORT|DST_IP|DST_PORT
+vpn-origin|51820|198.51.100.20|51820
+vpn-backup|51822|198.51.100.20|51820
+```
+
+Edit the names, origin addresses, and ports for your servers. For a tunnel, use
+the origin's tunnel address. Either manager accepts either filename or another
+path; the manager determines the protocols.
+
+**Import replaces the selected manager's existing mappings.** Include every
+mapping you want to keep. For an existing installation, export a backup first
+using the commands below.
 
 ### WireGuard / AmneziaWG (UDP)
 
 ```bash
 curl -fL https://raw.githubusercontent.com/phungvanquy/helper-scripts/main/relays/port-forwarding/udp-manager.sh -o udp-manager.sh &&
 sudo install -m 0755 udp-manager.sh /usr/local/sbin/vpn-relay-udp &&
-sudo /usr/local/sbin/vpn-relay-udp add vpn-origin 51820 198.51.100.20 51820
+sudo /usr/local/sbin/vpn-relay-udp import ./port.conf
 ```
 
 ### Both TCP and UDP
@@ -35,7 +48,7 @@ This manager creates rules for both protocols for every mapping.
 ```bash
 curl -fL https://raw.githubusercontent.com/phungvanquy/helper-scripts/main/relays/port-forwarding/tcp-udp-manager.sh -o tcp-udp-manager.sh &&
 sudo install -m 0755 tcp-udp-manager.sh /usr/local/sbin/vpn-relay-tcp-udp &&
-sudo /usr/local/sbin/vpn-relay-tcp-udp add proxy-origin 443 198.51.100.20 443
+sudo /usr/local/sbin/vpn-relay-tcp-udp import ./tcp-udp.conf
 ```
 
 The commands above download the current `main` version. The
@@ -48,19 +61,21 @@ VPN clients with the relay's public address and relay port.
 
 ## Manage existing mappings
 
+Export a backup, edit your configuration, and import it again:
+
 ```bash
-sudo /usr/local/sbin/vpn-relay-udp list
-sudo /usr/local/sbin/vpn-relay-udp update vpn-origin 51820 198.51.100.20 51821
 sudo /usr/local/sbin/vpn-relay-udp export /root/wg-forwards-backup.conf
-sudo /usr/local/sbin/vpn-relay-udp remove vpn-origin
+nano ./port.conf
+sudo /usr/local/sbin/vpn-relay-udp import ./port.conf
+sudo /usr/local/sbin/vpn-relay-udp list
 ```
 
-For both protocols, substitute `/usr/local/sbin/vpn-relay-tcp-udp`. UDP state lives
+For both protocols, substitute `/usr/local/sbin/vpn-relay-tcp-udp` and your
+`tcp-udp.conf` file. Remove a line and import again to remove a mapping. UDP state lives
 in `/etc/wg-forward/forwards.conf`; TCP/UDP state lives in
 `/etc/port-forward/forwards.conf`. Installing the script does not replace these
 files. `import` replaces the selected manager's mappings; export before importing
-if you need to keep the current configuration. Repeating `add` with an existing
-name is rejected; use `update` to change it.
+if you need to keep the current configuration.
 
 Verify mappings and traffic on the relay:
 
