@@ -16,14 +16,32 @@ host with iptables support. The forwarding managers install persistence tooling
 through a supported package manager if needed and enable IPv4 forwarding. This
 initialization runs even for `help` and `list`.
 
-First prepare `port.conf` for UDP or `tcp-udp.conf` for TCP/UDP in your current
-working directory, with one mapping per line:
+Create the configuration in your current working directory using the command
+for your protocol below. Each command writes a sample file, replacing it if it
+already exists. Use one mapping per line.
 
-```text
+For UDP, create `port.conf`:
+
+```bash
+cat > port.conf <<'EOF'
 # Format: NAME|RELAY_PORT|DST_IP|DST_PORT
 vpn-origin|51820|198.51.100.20|51820
 vpn-backup|51822|198.51.100.20|51820
+EOF
 ```
+
+For TCP/UDP, create `tcp-udp.conf`:
+
+```bash
+cat > tcp-udp.conf <<'EOF'
+# Format: NAME|RELAY_PORT|DST_IP|DST_PORT
+proxy-origin|443|198.51.100.20|443
+proxy-backup|8443|198.51.100.20|443
+EOF
+```
+
+Edit the values before importing, for example with `nano port.conf` or
+`nano tcp-udp.conf`.
 
 Edit the names, origin addresses, and ports for your servers. For a tunnel, use
 the origin's tunnel address. Either manager accepts either filename or another
